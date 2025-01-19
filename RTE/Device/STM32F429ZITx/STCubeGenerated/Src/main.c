@@ -72,7 +72,28 @@ extern int Init_Thread (void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+/* Override default HAL_GetTick function */
+uint32_t HAL_GetTick (void) { 
+  static uint32_t ticks = 0U; 
+  uint32_t i; 
+  
+  if (osKernelGetState () == osKernelRunning) { 
+    return ((uint32_t)osKernelGetTickCount ()); 
+  }
+  
+  /* If Kernel is not running wait approximately 1 ms then increment and return auxiliary tick counter value */ 
+  for (i = (SystemCoreClock >> 14U); i > 0U; i--) { 
+    __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); 
+  } 
+  
+  return ++ticks; 
+} 
+/* Override default HAL_InitTick function */
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) { 
+  UNUSED(TickPriority); 
+  
+  return HAL_OK; 
+} 
 /* USER CODE END 0 */
 
 /**
@@ -81,6 +102,7 @@ extern int Init_Thread (void);
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -506,27 +528,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM5 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM5) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.
