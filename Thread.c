@@ -47,6 +47,7 @@ void Thread (void *argument) {
         fclose (f);
       }
     }
+		BSP_LED_Toggle(1);
     osDelay (1000);
 	}
 }
