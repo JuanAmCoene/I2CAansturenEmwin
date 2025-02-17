@@ -19,6 +19,7 @@
 */
 
 // USER START (Optionally insert additional includes)
+#include <stdint.h>
 // USER END
 
 #include "DIALOG.h"
@@ -29,9 +30,11 @@
 *
 **********************************************************************
 */
-#define ID_FRAMEWIN_0            (GUI_ID_USER + 0x00)
-#define ID_MULTIEDIT_0           (GUI_ID_USER + 0x01)
-#define ID_BUTTON_0           (GUI_ID_USER + 0x02)
+#define ID_FRAMEWIN_0     (GUI_ID_USER + 0x00)
+#define ID_MULTIEDIT_0     (GUI_ID_USER + 0x01)
+#define ID_BUTTON_0     (GUI_ID_USER + 0x03)
+#define ID_SLIDER_0     (GUI_ID_USER + 0x04)
+#define ID_EDIT_0     (GUI_ID_USER + 0x06)
 
 
 // USER START (Optionally insert additional defines)
@@ -45,6 +48,10 @@
 */
 
 // USER START (Optionally insert additional static data)
+int fanon=0;
+int automatic=0;
+uint8_t currentTemp = 0;
+uint8_t setTemp = 25;
 // USER END
 
 /*********************************************************************
@@ -53,8 +60,10 @@
 */
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
   { FRAMEWIN_CreateIndirect, "LogViewer", ID_FRAMEWIN_0, 0, 0, 240, 320, 0, 0x0, 0 },
-  { MULTIEDIT_CreateIndirect, "Multiedit", ID_MULTIEDIT_0, 12, 13, 198, 208, 0, 0x0, 0 },
-  { BUTTON_CreateIndirect, "Update", ID_BUTTON_0, 28, 242, 175, 39, 0, 0x0, 0 },
+  { MULTIEDIT_CreateIndirect, "Multiedit", ID_MULTIEDIT_0, 14, 24, 198, 28, 0, 0x0, 0 },
+  { BUTTON_CreateIndirect, "MANUAL ON/OFF", ID_BUTTON_0, 11, 73, 139, 190, 0, 0x0, 0 },
+  { SLIDER_CreateIndirect, "Slider", ID_SLIDER_0, 178, 72, 50, 192, 8, 0x0, 0 },
+  { EDIT_CreateIndirect, "setTempBox", ID_EDIT_0, 184, 267, 36, 20, 0, 0x64, 0 },
   // USER START (Optionally insert additional widgets)
   // USER END
 };
@@ -88,7 +97,18 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
     //
     hItem = WM_GetDialogItem(pMsg->hWin, ID_MULTIEDIT_0);
     MULTIEDIT_SetText(hItem, "Multiedit");
+    //
+    // Initialization of 'setTempBox'
+    //
+    hItem = WM_GetDialogItem(pMsg->hWin, ID_EDIT_0);
+    EDIT_SetText(hItem, "123");
     // USER START (Optionally insert additional code for further widget initialization)
+	
+  hItem = WM_GetDialogItem(pMsg->hWin, ID_SLIDER_0); 
+    SLIDER_SetRange(hItem, 20, 30); 
+    SLIDER_SetValue(hItem, 25); 
+		SLIDER_SetInvertDir(hItem,1);
+	
     // USER END
     break;
   case WM_NOTIFY_PARENT:
@@ -113,16 +133,60 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       // USER END
       }
       break;
-    case ID_BUTTON_0: // Notifications sent by 'Update'
+    case ID_BUTTON_0: // Notifications sent by 'MANUAL ON/OFF'
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
-				hItem = WM_GetDialogItem(pMsg->hWin, ID_MULTIEDIT_0); 
-				MULTIEDIT_SetTextColor (hItem, 1, GUI_BLACK);
-				MULTIEDIT_SetText(hItem, fbuf);
+			automatic = 0;
+			
+			if (fanon == 0) {
+					fanon = 1;
+			} else {
+			fanon = 0;
+			}
+			
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      // USER START (Optionally insert additional code for further notification handling)
+      // USER END
+      }
+      break;
+    case ID_SLIDER_0: // Notifications sent by 'Slider'
+      switch(NCode) {
+      case WM_NOTIFICATION_CLICKED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      case WM_NOTIFICATION_RELEASED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      case WM_NOTIFICATION_VALUE_CHANGED:
+        // USER START (Optionally insert code for reacting on notification message)
+			hItem = WM_GetDialogItem(pMsg->hWin, ID_SLIDER_0); // Get slider handle
+      setTemp = SLIDER_GetValue(hItem); // Update setTemp with slider value
+			automatic=1;
+        // USER END
+        break;
+      // USER START (Optionally insert additional code for further notification handling)
+      // USER END
+      }
+      break;
+    case ID_EDIT_0: // Notifications sent by 'setTempBox'
+      switch(NCode) {
+      case WM_NOTIFICATION_CLICKED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      case WM_NOTIFICATION_RELEASED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      case WM_NOTIFICATION_VALUE_CHANGED:
         // USER START (Optionally insert code for reacting on notification message)
         // USER END
         break;
